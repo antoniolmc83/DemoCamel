@@ -89,11 +89,14 @@ public class DemoApplication extends FatJarRouter{
         
         from("direct:genericdiffstep")
         .log("genericdiffstep: before poll ${property.diffFile}")
-        .pollEnrich().simple("file:/C:/temp?fileName=${property.diffFile}")
+        .pollEnrich().simple("file:/C:/temp?fileName=${property.diffFile}_add")
+        .pollEnrich().simple("file:/C:/temp?fileName=${property.diffFile}_old")
+        .log("")
+        //.aggregationStrategy(new ExampleAggregationStrategy())
         .log("genericdiffstep: after poll ${property.diffFile}")
         .end();
         
-
+        
         
 
         

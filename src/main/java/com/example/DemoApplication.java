@@ -51,6 +51,52 @@ public class DemoApplication extends FatJarRouter{
         .end()
         .log("FIN");
         
+        
+        from("file:/C:/temp?fileName=file1.txt&noop=false&move=destino")
+        .log("file1 - 1")
+        .process(new Processor(){
+
+			@Override
+			public void process(Exchange arg0) throws Exception {
+				System.out.println("ssssss 11");
+				
+			}
+        	
+        })
+//        .to("file:/C:/temp/destino")
+        .log("file1 - 2")
+        .setProperty("diffFile", constant("file1.txt_diff"))
+        .to("direct:genericdiffstep")
+        .end();
+
+        from("file:/C:/temp?fileName=file2.txt&noop=false&move=destino")
+        .log("file2 - 1")
+        .process(new Processor(){
+
+			@Override
+			public void process(Exchange arg0) throws Exception {
+				System.out.println("ssssss 22");
+				
+			}
+        	
+        })
+//        .to("file:/C:/temp/destino")
+        .log("file2 - 2")
+        .setProperty("diffFile", constant("file2.txt_diff"))
+        .to("direct:genericdiffstep")
+        .end();
+        
+        
+        from("direct:genericdiffstep")
+        .log("genericdiffstep: before poll ${property.diffFile}")
+        .pollEnrich().simple("file:/C:/temp?fileName=${property.diffFile}")
+        .log("genericdiffstep: after poll ${property.diffFile}")
+        .end();
+        
+
+        
+
+        
     }
 	
     @Bean

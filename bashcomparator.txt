@@ -1,0 +1,1 @@
+diff --unchanged-line-format="" --old-line-format="D|%L" --new-line-format="M|%L" file1.txt file2.txt

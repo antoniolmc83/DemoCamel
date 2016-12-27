@@ -1,0 +1,33 @@
+MATCH(u:User{login_id:'QA3User'}) MATCH(a:Account{account_id:'XXX00002'}) MERGE(u)-[:USER_ACCOUNT]->(a)
+
+MATCH(a:Account{account_id:'XXX00001'}) MATCH(i:Invoice{invoice_id:'IXXX0004'})  MERGE(a)-[:ACCOUNT_INVOICE]->(i)
+
+MATCH(u:User)-[*]->(i:Invoice) where u.login_id='QA3User' return i
+
+MATCH(u:User)-[*]->(i:Invoice) where u.login_id='QA3User' return i order by i.inv_date desc LIMIT 1
+
+MATCH(u:User)-[ua:USER_ACCOUNT]->(a:Account) where u.login_id='QA3User' with a MATCH (a)-[ai:ACCOUNT_INVOICE]->(i:Invoice) return i order by i.inv_date desc LIMIT 1
+
+
+MERGE(i:Invoice{invoice_id:'IYYY0001'}) ON CREATE SET i.inv_date=20160101
+
+MATCH(a:Account{account_id:'YYY00002'}) MERGE(i:Invoice{invoice_id:'IYYY0001'})  MERGE(a)-[:ACCOUNT_INVOICE]->(i)
+
+
+MATCH(u:User)-[ua:USER_ACCOUNT]->(a:Account) where u.login_id='QA3User' 
+WITH a AS accounts 
+FOREACH (ac IN accounts |   
+	MATCH (ac)-[ai:ACCOUNT_INVOICE]->(i:Invoice) 
+	return i order by i.inv_date desc LIMIT 1)
+	
+	
+MATCH(u:User)-[ua:USER_ACCOUNT]->(a:Account) where u.login_id='QA3User' 
+WITH collect(a) AS accounts UNWIND accounts as ac  
+	MATCH (ac)-[ai:ACCOUNT_INVOICE]->(i:Invoice) 
+	return i order by i.inv_date desc LIMIT 1	
+	
+
+MATCH(u:User)-[*]->(a:Account)-[:ACCOUNT_INVOICE]->(i:Invoice) where u.login_id='QA3User' with  distinct a.account_id, max(i.inv_date) 
+
+--working
+MATCH(u:User)-[*]->(a:Account)-[:ACCOUNT_INVOICE]->(i:Invoice) where u.login_id='QA3User' with  distinct u.login_id as login, a.account_id as account, max(i.inv_date) as current MATCH(u:User)-[*]->(a:Account)-[:ACCOUNT_INVOICE]->(i:Invoice) where u.login_id=login and a.account_id=account and i.inv_date=current return i
